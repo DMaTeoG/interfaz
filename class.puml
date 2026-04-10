@@ -1,0 +1,142 @@
+@startuml
+title Universidad - Modelo por Capas
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "controller" {
+
+  class AuthController {
+    + login(usuario:String, password:String) : boolean
+  }
+
+  class EstudianteController {
+    + crearEstudiante(nombre:String, correo:String, codigo:String) : Estudiante
+    + buscarEstudiante(codigo:String) : Estudiante
+  }
+
+  class ProfesorController {
+    + crearProfesor(nombre:String, correo:String, especialidad:String) : Profesor
+  }
+
+  class AdministrativoController {
+    + crearAdministrativo(nombre:String, correo:String, area:String) : Administrativo
+  }
+
+  class SolicitudController {
+    + aprobar(codigoSolicitud:String) : void
+  }
+
+  class EvaluacionController {
+    + evaluar(codigoEstudiante:String, nota:double) : void
+  }
+
+  class NotificacionController {
+    + notificar(mensaje:String) : void
+  }
+}
+
+package "service" {
+
+  class AutenticacionService {
+    + login(usuario:String, password:String) : boolean
+  }
+
+  class EstudianteService {
+    + registrarEstudiante(nombre:String, correo:String, codigo:String) : Estudiante
+    + obtenerEstudiante(codigo:String) : Estudiante
+  }
+
+  class ProfesorService {
+    + registrarProfesor(nombre:String, correo:String, especialidad:String) : Profesor
+  }
+
+  class AdministrativoService {
+    + registrarAdministrativo(nombre:String, correo:String, area:String) : Administrativo
+  }
+
+  class SolicitudService {
+    + aprobarSolicitud(codigoSolicitud:String) : void
+  }
+
+  class EvaluacionService {
+    + evaluarEstudiante(estudiante:Estudiante, nota:double) : void
+  }
+
+  class NotificacionService {
+    + enviarNotificacion(mensaje:String) : void
+  }
+}
+
+package "model" {
+
+  abstract class Persona {
+    - nombre : String
+    - correo : String
+    + Persona(nombre:String, correo:String)
+    + getNombre() : String
+    + getCorreo() : String
+  }
+
+  class Administrativo {
+    - area : String
+    + Administrativo(nombre:String, correo:String, area:String)
+  }
+
+  class Estudiante {
+    - codigo : String
+    + Estudiante(nombre:String, correo:String, codigo:String)
+  }
+
+  class Profesor {
+    - especialidad : String
+    + Profesor(nombre:String, correo:String, especialidad:String)
+  }
+
+  interface Aprobador {
+    + aprobarSolicitud(codigoSolicitud:String) : void
+  }
+
+  interface Notificable {
+    + enviarNotificacion(mensaje:String) : void
+  }
+
+  interface Autenticable {
+    + login(usuario:String, password:String) : boolean
+  }
+
+  interface Evaluador {
+    + evaluarEstudiante(estudiante:Estudiante, nota:double) : void
+  }
+
+  Persona <|-- Administrativo
+  Persona <|-- Estudiante
+  Persona <|-- Profesor
+
+  Aprobador <|.. Administrativo
+  Notificable <|.. Administrativo
+
+  Notificable <|.. Estudiante
+  Autenticable <|.. Estudiante
+
+  Autenticable <|.. Profesor
+  Evaluador <|.. Profesor
+}
+
+AuthController --> AutenticacionService
+EstudianteController --> EstudianteService
+ProfesorController --> ProfesorService
+AdministrativoController --> AdministrativoService
+SolicitudController --> SolicitudService
+EvaluacionController --> EvaluacionService
+NotificacionController --> NotificacionService
+
+AutenticacionService --> Autenticable
+EstudianteService --> Estudiante
+ProfesorService --> Profesor
+AdministrativoService --> Administrativo
+SolicitudService --> Aprobador
+EvaluacionService --> Evaluador
+NotificacionService --> Notificable
+
+@enduml
